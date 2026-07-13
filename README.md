@@ -42,7 +42,7 @@ Streamlit UI
 - **Database**: SQLite
 - **Statistics**: SciPy (Welch's t-test for causal comparison)
 - **UI**: Streamlit
-- **Data**: [FMCG/retail sales dataset — add your Kaggle source link here]
+- **Data**: [FMCG/retail sales dataset — (https://www.kaggle.com/code/mishashikhov/fmcg-sales-forecasting-ml-case-study/input)]
 
 ## Project structure
 
