@@ -19,6 +19,8 @@ Most "AI agent" projects are a single LLM call wrapped in a chat UI. This system
 - Uses a genuine statistical test (Welch's t-test) to distinguish a real regional anomaly from normal market-wide variation
 - Includes a verification step that checks report claims against their *specific* source data — catching cases where the reporting agent overreaches beyond what any single query actually supports
 
+![Demo screenshot](screenshots/image1.png)
+
 ## Architecture
 User question
 ↓
