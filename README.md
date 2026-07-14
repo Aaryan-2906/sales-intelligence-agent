@@ -63,19 +63,25 @@ XGBoost was selected based on lowest MAE on the held-out 2024 test set — a ~14
 
 ## Project structure
 
+```
 sales-intelligence-agent/
 ├── agents/
-│   ├── planner.py       # breaks question into sub-questions
-│   ├── data_agent.py     # SQL generation + execution + self-correction
-│   ├── causal_agent.py   # statistical region comparison
+│   ├── planner.py         # breaks question into sub-questions
+│   ├── data_agent.py      # SQL generation + execution + self-correction
+│   ├── causal_agent.py    # statistical region comparison (t-test)
+│   ├── forecast_agent.py  # trained XGBoost model + anomaly detection
 │   ├── reporter.py        # executive summary generation
-│   └── verifier.py       # claim verification against source data
+│   └── verifier.py        # claim verification against source data
 ├── data/
-│   └── raw_sales.csv     # source dataset (sales.db generated from this)
-├── graph.py              # orchestrates the full pipeline
-├── load_data.py           # loads CSV into SQLite
-├── app.py                 # Streamlit UI
+│   └── raw_sales.csv      # source dataset (sales.db generated from this)
+├── screenshots/
+│   └── demo.png
+├── graph.py                # orchestrates the full pipeline
+├── load_data.py             # loads CSV into SQLite
+├── train_forecast.py        # trains and compares forecasting models
+├── app.py                   # Streamlit UI
 └── requirements.txt
+```
 
 ## How to run it
 
