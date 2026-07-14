@@ -43,15 +43,15 @@ Streamlit UI
 
 A trained XGBoost model predicts expected daily units_sold using calendar features (day of week, month), lag features (7/14/28-day lags), rolling statistics, price, promotion flags, and stock availability. Actual sales are compared against predictions — days where the deviation exceeds 2 standard deviations of the model's historical residual error are flagged as anomalies.
 
-Three models were compared on a time-based train/test split (train: 2022–2023, test: 2024, never randomly split to avoid leaking future information):
+Three models were compared on a time-based train/test split (train: 2022–2023, 25,013 rows; test: 2024, 15,982 rows — never randomly split, to avoid leaking future information into training):
 
 | Model | MAE | RMSE |
 |---|---|---|
-| Linear Regression | *(fill in from your terminal output)* | *(fill in)* |
-| Decision Tree | *(fill in)* | *(fill in)* |
-| XGBoost | *(fill in)* | *(fill in)* |
+| Linear Regression | 19.09 | 25.81 |
+| Decision Tree | 17.64 | 24.86 |
+| XGBoost | **16.43** | **23.15** |
 
-XGBoost was selected based on lowest MAE on the held-out 2024 test set.
+XGBoost was selected based on lowest MAE on the held-out 2024 test set — a ~14% improvement over the linear baseline, reflecting its ability to capture non-linear interactions between promotions, seasonality, and pricing that simpler models miss.
 
 ## Tech stack
 
