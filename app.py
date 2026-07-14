@@ -3,10 +3,11 @@ from graph import run_pipeline
 from agents.reporter import reporter_agent
 from agents.verifier import verifier_agent
 from agents.causal_agent import get_region_comparison
+from agents.forecast_agent import forecast_agent
 
 st.set_page_config(page_title="Sales Intelligence Agent", layout="wide")
-st.title("Sales Intelligence Agent")
-st.caption("Ask a business question. Watch the agents plan, query, and verify before reporting.")
+st.title("🧠 Sales Intelligence Agent")
+st.caption("Ask a business question. Watch the agents plan, query, run statistics, forecast, and verify before reporting.")
 
 question = st.text_input("Ask a business question:", "Why did sales drop in the South region recently?")
 
@@ -50,8 +51,37 @@ if st.button("Run Analysis"):
         else:
             st.write(sig["error"])
 
+    with st.spinner("Running ML forecast model (XGBoost)..."):
+        forecast_result = forecast_agent(
+            region="PL-South",
+            category="Yogurt",
+            channel="Retail",
+            start_date="2024-10-01",
+            end_date="2024-12-31"
+        )
+
+    st.subheader("🤖 ML Forecast & Anomaly Detection")
+    if "error" not in forecast_result:
+        col3, col4, col5 = st.columns(3)
+        col3.metric("Anomaly days detected", forecast_result["anomaly_count"])
+        col4.metric("Mean deviation", forecast_result["mean_deviation"])
+        col5.metric("Anomaly threshold", f"± {forecast_result['anomaly_threshold']}")
+
+        st.write("**Actual vs Predicted units sold (South / Yogurt / Retail):**")
+        chart_df = {row["date"]: {"actual": row["units_sold"], "predicted": row["predicted_units_sold"]}
+                    for row in forecast_result["rows"]}
+        import pandas as pd
+        chart_data = pd.DataFrame(forecast_result["rows"])[["date", "units_sold", "predicted_units_sold"]]
+        chart_data = chart_data.set_index("date")
+        st.line_chart(chart_data)
+
+        if forecast_result["anomaly_dates"]:
+            st.write(f"**Anomaly dates flagged:** {', '.join(forecast_result['anomaly_dates'])}")
+    else:
+        st.write(forecast_result["error"])
+
     with st.spinner("Writing report..."):
-        report = reporter_agent(question, results, causal_result)
+        report = reporter_agent(question, results, causal_result, forecast_result)
 
     st.subheader("📝 Executive Report")
     st.write(report)
@@ -71,3 +101,12 @@ if st.button("Run Analysis"):
     causal_verdict = verifier_agent(report, causal_as_data)
     with st.expander("Checked against: Statistical region comparison (causal analysis)"):
         st.write(causal_verdict)
+
+    if "error" not in forecast_result:
+        forecast_as_data = {
+            "columns": ["anomaly_count", "anomaly_dates", "mean_deviation"],
+            "rows": [(forecast_result["anomaly_count"], forecast_result["anomaly_dates"], forecast_result["mean_deviation"])],
+        }
+        forecast_verdict = verifier_agent(report, forecast_as_data)
+        with st.expander("Checked against: ML Forecast model anomaly detection"):
+            st.write(forecast_verdict)

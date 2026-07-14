@@ -3,6 +3,7 @@ from agents.data_agent import data_agent
 from agents.reporter import reporter_agent
 from agents.verifier import verifier_agent
 from agents.causal_agent import get_region_comparison
+from agents.forecast_agent import forecast_agent
 
 
 def run_pipeline(question: str):
@@ -41,20 +42,29 @@ if __name__ == "__main__":
     )
     print(causal_result)
 
+    print("\n\n=== FORECAST & ANOMALY DETECTION ===\n")
+    forecast_result = forecast_agent(
+        region="PL-South",
+        category="Yogurt",
+        channel="Retail",
+        start_date="2024-10-01",
+        end_date="2024-12-31"
+    )
+    print(f"Anomalies detected: {forecast_result.get('anomaly_count')}")
+    print(f"Anomaly dates: {forecast_result.get('anomaly_dates')}")
+    print(f"Mean deviation: {forecast_result.get('mean_deviation')}")
+
     print("\n\n=== FINAL REPORT ===\n")
-    report = reporter_agent(question, results, causal_result)
+    report = reporter_agent(question, results, causal_result, forecast_result)
     print(report)
 
     print("\n\n=== VERIFICATION ===\n")
-
-    # Verify each SQL sub-question's contribution
     for r in results:
         if not r["error"]:
             verdict = verifier_agent(report, r)
             print(f"\nChecked against: {r['question']}")
             print(verdict)
 
-    # Verify the causal/statistical claim separately, against its own data
     causal_as_data = {
         "columns": ["region", "before_avg", "after_avg", "pct_change"],
         "rows": [(k, v.get("before_avg"), v.get("after_avg"), v.get("pct_change"))
@@ -63,3 +73,12 @@ if __name__ == "__main__":
     causal_verdict = verifier_agent(report, causal_as_data)
     print(f"\nChecked against: Statistical region comparison (causal analysis)")
     print(causal_verdict)
+
+    if "error" not in forecast_result:
+        forecast_as_data = {
+            "columns": ["anomaly_count", "anomaly_dates", "mean_deviation"],
+            "rows": [(forecast_result["anomaly_count"], forecast_result["anomaly_dates"], forecast_result["mean_deviation"])],
+        }
+        forecast_verdict = verifier_agent(report, forecast_as_data)
+        print(f"\nChecked against: ML Forecast model anomaly detection")
+        print(forecast_verdict)

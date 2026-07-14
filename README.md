@@ -20,6 +20,7 @@ Most "AI agent" projects are a single LLM call wrapped in a chat UI. This system
 - Includes a verification step that checks report claims against their *specific* source data — catching cases where the reporting agent overreaches beyond what any single query actually supports
 
 ![Demo screenshot](screenshots/image1.png)
+![Demo Screenshot](screenshots/image2.png)
 
 ## Architecture
 User question
@@ -30,11 +31,27 @@ Data Agent           → writes SQL, executes, self-corrects on error
 ↓
 Causal Agent         → region vs. region statistical comparison (t-test)
 ↓
+Forecast Agent       → trained XGBoost model, predicts actual vs expected units_sold, flags anomaly days
+↓
 Reporter Agent       → synthesizes findings into an executive summary
 ↓
 Verifier Agent       → checks each claim against its specific source data
 ↓
 Streamlit UI
+
+## Forecast & Anomaly Detection
+
+A trained XGBoost model predicts expected daily units_sold using calendar features (day of week, month), lag features (7/14/28-day lags), rolling statistics, price, promotion flags, and stock availability. Actual sales are compared against predictions — days where the deviation exceeds 2 standard deviations of the model's historical residual error are flagged as anomalies.
+
+Three models were compared on a time-based train/test split (train: 2022–2023, test: 2024, never randomly split to avoid leaking future information):
+
+| Model | MAE | RMSE |
+|---|---|---|
+| Linear Regression | *(fill in from your terminal output)* | *(fill in)* |
+| Decision Tree | *(fill in)* | *(fill in)* |
+| XGBoost | *(fill in)* | *(fill in)* |
+
+XGBoost was selected based on lowest MAE on the held-out 2024 test set.
 
 ## Tech stack
 
