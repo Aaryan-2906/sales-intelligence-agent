@@ -128,4 +128,4 @@ For the question *"Why did sales drop in the South region recently?"*, the syste
 
 ## Author
 
-Aaryan Mohanty — built as part of ML/Agentic AI internship preparation
+Aaryan Mohanty
